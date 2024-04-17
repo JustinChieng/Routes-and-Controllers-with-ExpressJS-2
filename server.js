@@ -41,36 +41,41 @@ app.get("/parks/:id", (request, response) => {
 });
 
 app.get("/visitors", (request, response) => {
-    response.status(200).json(visitors);
-  });
+  response.status(200).json(visitors);
+});
 
-  app.get("/visitors/:id", (request, response) => {
-    const visitorId = parseInt(request.params.id);
-    const visitor = visitors.find((v) => v.id === visitorId);
-    if (visitor) {
-  
-      const pastReservationsWithDates = visitor.pastReservations.map(id => {
-        return reservations.find(reservation => reservation.id === id);
-      });
-  
-      const upcomingReservationsWithDates = visitor.upcomingReservations.map(id => {
-        return reservations.find(reservation => reservation.id === id);
-      });
-  
-      const visitorWithReservations = {
-        id: visitor.id,
-        name: visitor.name,
-        pastReservations: pastReservationsWithDates,
-        upcomingReservations: upcomingReservationsWithDates
-      };
-  
-      response.status(200).json(visitorWithReservations);
-    } else {
-      response.status(404).json("Visitor not found");
-    }
-  });
-  
+app.get("/visitors/:id", (request, response) => {
+  const visitorId = parseInt(request.params.id);
+  const visitor = visitors.find((v) => v.id === visitorId);
+  if (visitor) {
+    const pastReservationsWithDates = visitor.pastReservations.map((id) => {
+      const reservation = reservations.find(
+        (reservation) => reservation.id === id
+      );
+      if (reservation) return reservation;
+    });
 
+    const upcomingReservationsWithDates = visitor.upcomingReservations.map(
+      (id) => {
+        const reservation = reservations.find(
+          (reservation) => reservation.id === id
+        );
+        if (reservation) return reservation;
+      }
+    );
+
+    const visitorWithReservations = {
+      id: visitor.id,
+      name: visitor.name,
+      pastReservations: pastReservationsWithDates,
+      upcomingReservations: upcomingReservationsWithDates,
+    };
+
+    response.status(200).json(visitorWithReservations);
+  } else {
+    response.status(404).json("Visitor not found");
+  }
+});
 
 app.get("/reservations", (request, response) => {
   response.status(200).json(reservations);
